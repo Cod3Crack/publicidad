@@ -31,7 +31,7 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 // Función para contacto por WhatsApp
 function contactWhatsApp() {
     const message = encodeURIComponent(
-        '¡Hola Publicidad! Me interesa el Combo Publicidad Completo por $100,000. ¿Podrían darme más información?'
+        '¡Hola! Me interesa el Combo Publicidad Completo por $100,000. ¿Podrían darme más información?'
     );
     // Número de WhatsApp actualizado
     const phoneNumber = '573017454361';
