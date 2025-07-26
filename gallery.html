@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galería de Capturas</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        /* Reset y base */
+        * {
+            box-sizing: border-box;
+        }
+        html, body {
+            height: 100%;
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f3f4f6;
+        }
+
+        /* Header */
+        .header {
+            background-color: #4F46E5;
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: fixed; /* Fijo en la parte superior */
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1000; /* Asegura que esté por encima de otros elementos */
+        }
+        .header .container {
+            display: flex;
+            justify-content: space-between; /* Distribuye los elementos a los extremos */
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            flex-wrap: wrap;
+            gap: 1rem; /* Espacio entre elementos del header */
+        }
+        .logo-container {
+            order: 2; /* Coloca el título en el centro lógico */
+            flex-grow: 1;
+            text-align: center; /* Centra el texto del título */
+        }
+        .logo-text {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        .nav {
+            order: 1; /* Coloca el botón de inicio a la izquierda */
+            display: flex;
+            gap: 0.5rem; /* Espacio entre enlaces de navegación */
+        }
+        .nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            padding: 0.5rem; /* Añadir padding para hacer el área de clic más grande */
+            border-radius: 5px;
+        }
+        .nav a:hover {
+            background-color: rgba(255,255,255,0.2);
+        }
+        .nav a i {
+            font-size: 1.2rem; /* Tamaño del icono */
+        }
+        .btn-delete-all {
+            order: 3; /* Coloca el botón de eliminar a la derecha */
+            background-color: #EF4444;
+            color: white;
+            border: none;
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.3s ease;
+            display: flex; /* Para centrar el icono si es necesario */
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-delete-all:hover {
+            background-color: #DC2626;
+        }
+
+        /* Main content area */
+        main {
+            padding-bottom: 2rem; /* Espacio para la paginación */
+        }
+
+        /* Gallery Container */
+        .gallery-container {
+            max-width: 1200px;
+            margin: 0 auto !important; /* Eliminar margen superior aquí, main handles it */
+            padding: 0 1rem;
+            columns: 4;
+            column-gap: 1rem;
+        }
+        .gallery-item {
+            margin-bottom: 1rem;
+            break-inside: avoid;
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+        .gallery-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 8px;
+            transition: transform 0.3s ease;
+        }
+        .gallery-item:hover img {
+            transform: scale(1.05);
+        }
+        .image-info {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            padding: 5px 10px;
+            font-size: 0.75rem;
+            text-align: center;
+            opacity: 1; /* Siempre visible */
+            transition: opacity 0.3s ease;
+            box-sizing: border-box;
+        }
+        .action-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+            color: white;
+            display: flex;
+            justify-content: flex-end;
+            padding: 10px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            box-sizing: border-box;
+        }
+        .gallery-item:hover .action-overlay {
+            opacity: 1;
+        }
+        .action-overlay .icon-btn {
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin-left: 15px;
+            transition: transform 0.2s ease;
+        }
+        .action-overlay .icon-btn:hover {
+            transform: scale(1.2);
+        }
+        #loadingMessage {
+            text-align: center;
+            font-size: 1.2rem;
+            padding: 2rem;
+            color: #666;
+        }
+
+        /* Lightbox */
+        #lightbox {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+        #lightbox.active {
+            display: flex;
+        }
+        #lightbox img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+        #lightbox .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+        }
+
+        /* Pagination */
+        .pagination-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 2rem 0;
+            gap: 1rem;
+        }
+        .pagination-controls button {
+            background-color: #4F46E5;
+            color: white;
+            border: none;
+            padding: 0.7rem 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+        }
+        .pagination-controls button:hover:not(:disabled) {
+            background-color: #3730A3;
+        }
+        .pagination-controls button:disabled {
+            background-color: #9CA3AF;
+            cursor: not-allowed;
+        }
+        .pagination-controls span {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #333;
+        }
+
+        /* Media Queries */
+        @media (max-width: 1000px) {
+            .gallery-container { columns: 3; }
+        }
+        @media (max-width: 768px) {
+            .gallery-container { columns: 2; }
+            .header .container {
+                flex-direction: row; /* Mantener en fila para izquierda/derecha */
+                justify-content: space-between; /* Asegurar que estén en los extremos */
+                align-items: center;
+                padding: 0.8rem 1rem; /* Ajustar padding para móviles */
+            }
+            .logo-container {
+                order: 2; /* Sigue en el centro */
+                flex-grow: 1;
+                text-align: center;
+            }
+            .nav {
+                order: 1; /* Izquierda */
+                /* Eliminar margin-right: auto; */
+            }
+            .btn-delete-all {
+                order: 3; /* Derecha */
+                /* Eliminar margin-left: auto; */
+                padding: 0.5rem 0.8rem; /* Ajustar padding para móviles */
+            }
+            .logo-text {
+                font-size: 1.2rem;
+            }
+            .nav a i {
+                font-size: 1rem;
+            }
+            .btn-delete-all i {
+                font-size: 0.8rem;
+            }
+        }
+        @media (max-width: 480px) {
+            .gallery-container { columns: 1; }
+            .header .container {
+                padding: 0.5rem 1rem;
+            }
+            .logo-text {
+                font-size: 1.3rem;
+            }
+            .nav a {
+                margin: 0.3rem 0.8rem;
+                font-size: 0.9rem;
+            }
+            .btn-delete-all {
+                padding: 0.5rem 0.8rem;
+                font-size: 0.8rem;
+            }
+            .action-overlay .icon-btn {
+                font-size: 1rem;
+                margin-left: 10px;
+            }
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const header = document.querySelector('.header');
+            const main = document.querySelector('main');
+
+            function adjustMainPadding() {
+                main.style.paddingTop = header.offsetHeight + 20 + 'px'; // Añadir 20px extra de espacio
+            }
+
+            // Ajustar al cargar y al redimensionar la ventana
+            adjustMainPadding();
+            window.addEventListener('resize', adjustMainPadding);
+        });
+    </script>
+</head>
+<body>
+
+    <header class="header">
+        <div class="container gallery-header">
+            <nav class="nav">
+                <a href="index.html" title="Volver al Inicio"><i class="fas fa-home"></i></a>
+            </nav>
+            <div class="logo-container">
+                <h1 class="logo-text">Galería de Capturas</h1>
+            </div>
+            <button id="btnDeleteAll" class="btn-delete-all" style="display: none;" title="Eliminar Todo">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <div id="gallery" class="gallery-container">
+            <!-- Las imágenes se cargarán aquí -->
+        </div>
+        <p id="loadingMessage">Cargando imágenes...</p>
+
+        <!-- Controles de Paginación -->
+        <div class="pagination-controls">
+            <button id="prevPage" disabled><i class="fas fa-arrow-left"></i> Anterior</button>
+            <span id="pageInfo">Página 1 de 1</span>
+            <button id="nextPage" disabled>Siguiente <i class="fas fa-arrow-right"></i></button>
+        </div>
+    </main>
+
+    <!-- Lightbox HTML -->
+    <div id="lightbox">
+        <span class="close-btn">&times;</span>
+        <img src="" alt="Vista ampliada">
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            const galleryContainer = document.getElementById('gallery');
+            const loadingMessage = document.getElementById('loadingMessage');
+            const btnDeleteAll = document.getElementById('btnDeleteAll');
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImg = lightbox.querySelector('img');
+            const closeBtn = lightbox.querySelector('.close-btn');
+
+            // Elementos de paginación
+            const prevPageBtn = document.getElementById('prevPage');
+            const nextPageBtn = document.getElementById('nextPage');
+            const pageInfoSpan = document.getElementById('pageInfo');
+
+            let currentPage = 1;
+            const itemsPerPage = 12; // Número de imágenes por página
+            let totalImages = 0;
+
+            function openLightbox(src) {
+                lightboxImg.src = src;
+                lightbox.classList.add('active');
+            }
+
+            function closeLightbox() {
+                lightbox.classList.remove('active');
+                lightboxImg.src = '';
+            }
+
+            closeBtn.addEventListener('click', closeLightbox);
+            lightbox.addEventListener('click', (e) => {
+                if (e.target === lightbox) {
+                    closeLightbox();
+                }
+            });
+
+            async function downloadImage(imgSrc, fileName) {
+                try {
+                    const response = await fetch(imgSrc);
+                    const blob = await response.blob();
+                    
+                    const url = window.URL.createObjectURL(blob);
+                    
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = fileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+
+                } catch (error) {
+                    console.error('Error al descargar la imagen:', error);
+                    Swal.fire('Error', 'No se pudo descargar la imagen.', 'error');
+                }
+            }
+
+            // Función para formatear la fecha y hora a formato colombiano
+            function formatColombianDateTime(timestamp) {
+                const date = new Date(timestamp * 1000); // Convertir segundos a milisegundos
+                const options = {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    timeZone: 'America/Bogota', // Zona horaria de Colombia
+                    hour12: true // Formato de 12 horas con AM/PM
+                };
+                return date.toLocaleString('es-CO', options);
+            }
+
+            async function loadGallery() {
+                galleryContainer.innerHTML = '';
+                loadingMessage.textContent = 'Cargando imágenes...';
+                loadingMessage.style.display = 'block';
+                btnDeleteAll.style.display = 'none';
+
+                // Calcular offset para la paginación
+                const offset = (currentPage - 1) * itemsPerPage;
+
+                try {
+                    const response = await fetch(`api/get_captures.php?limit=${itemsPerPage}&offset=${offset}`);
+                    const result = await response.json();
+
+                    if (result.success) {
+                        totalImages = result.total; // Obtener el total de imágenes
+                        const totalPages = Math.ceil(totalImages / itemsPerPage);
+
+                        if (result.files.length > 0) {
+                            loadingMessage.style.display = 'none';
+                            btnDeleteAll.style.display = 'block';
+                            result.files.forEach(fileData => {
+                                const item = document.createElement('div');
+                                item.className = 'gallery-item';
+                                item.setAttribute('data-file', fileData.name);
+
+                                const imgSrc = 'captures/' + fileData.name;
+                                const img = document.createElement('img');
+                                img.src = imgSrc;
+                                img.alt = 'Captura de cámara';
+                                img.onclick = () => openLightbox(imgSrc);
+                                
+                                // Información de fecha y hora
+                                const infoDiv = document.createElement('div');
+                                infoDiv.className = 'image-info';
+                                infoDiv.textContent = formatColombianDateTime(fileData.timestamp);
+
+                                const overlay = document.createElement('div');
+                                overlay.className = 'action-overlay';
+                                
+                                const deleteIcon = document.createElement('i');
+                                deleteIcon.className = 'fas fa-trash icon-btn';
+                                deleteIcon.title = 'Eliminar esta imagen';
+                                deleteIcon.onclick = (e) => {
+                                    e.stopPropagation();
+                                    deleteImage(fileData.name, item);
+                                };
+
+                                const downloadIcon = document.createElement('i');
+                                downloadIcon.className = 'fas fa-download icon-btn';
+                                downloadIcon.title = 'Descargar esta imagen';
+                                downloadIcon.onclick = (e) => {
+                                    e.stopPropagation();
+                                    downloadImage(imgSrc, fileData.name);
+                                };
+
+                                overlay.appendChild(downloadIcon);
+                                overlay.appendChild(deleteIcon);
+                                item.appendChild(infoDiv); // Añadir la información de la imagen
+                                item.appendChild(img);
+                                item.appendChild(overlay);
+                                galleryContainer.appendChild(item);
+                            });
+                        } else {
+                            loadingMessage.textContent = 'No hay capturas para mostrar.';
+                            btnDeleteAll.style.display = 'none';
+                        }
+
+                        // Actualizar controles de paginación
+                        pageInfoSpan.textContent = `Página ${currentPage} de ${totalPages === 0 ? 1 : totalPages}`;
+                        prevPageBtn.disabled = currentPage === 1;
+                        nextPageBtn.disabled = currentPage === totalPages || totalPages === 0;
+
+                    } else {
+                        throw new Error(result.error || 'No se pudieron cargar las imágenes.');
+                    }
+                } catch (error) {
+                    console.error('Error al cargar la galería:', error);
+                    loadingMessage.textContent = 'Error al cargar la galería. Inténtalo de nuevo más tarde.';
+                    loadingMessage.style.color = 'red';
+                }
+            }
+
+            async function deleteImage(fileName, element) {
+                const confirmation = await Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: `¿Quieres eliminar la imagen? Esta acción no se puede deshacer.`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#EF4444',
+                    cancelButtonColor: '#6B7280',
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                });
+
+                if (confirmation.isConfirmed) {
+                    try {
+                        const response = await fetch('api/delete_capture.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ file: fileName })
+                        });
+                        const result = await response.json();
+
+                        if (result.success) {
+                            // No eliminar el elemento directamente, recargar la galería para actualizar la paginación
+                            Swal.fire('¡Eliminada!', 'La imagen ha sido eliminada.', 'success');
+                            loadGallery(); 
+                        } else {
+                            throw new Error(result.error);
+                        }
+                    } catch (error) {
+                        Swal.fire('Error', `No se pudo eliminar la imagen: ${error.message}`, 'error');
+                    }
+                }
+            }
+
+            async function deleteAllImages() {
+                const confirmation = await Swal.fire({
+                    title: '¿Estás seguro de eliminar TODO?',
+                    text: 'Esta acción eliminará todas las imágenes de la galería y no se puede deshacer.',
+                    icon: 'error',
+                    showCancelButton: true,
+                    confirmButtonColor: '#EF4444',
+                    cancelButtonColor: '#6B7280',
+                    confirmButtonText: 'Sí, eliminar todo',
+                    cancelButtonText: 'Cancelar'
+                });
+
+                if (confirmation.isConfirmed) {
+                    try {
+                        const response = await fetch('api/delete_capture.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ action: 'deleteAll' })
+                        });
+                        const result = await response.json();
+
+                        if (result.success) {
+                            loadGallery();
+                            Swal.fire('¡Eliminadas!', 'Todas las imágenes han sido eliminadas.', 'success');
+                        } else {
+                            throw new Error(result.error);
+                        }
+                    } catch (error) {
+                        Swal.fire('Error', `No se pudieron eliminar las imágenes: ${error.message}`, 'error');
+                    }
+                }
+            }
+
+            // Event listeners para paginación
+            prevPageBtn.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    loadGallery();
+                }
+            });
+
+            nextPageBtn.addEventListener('click', () => {
+                const totalPages = Math.ceil(totalImages / itemsPerPage);
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    loadGallery();
+                }
+            });
+
+            btnDeleteAll.onclick = deleteAllImages;
+
+            loadGallery();
+        });
+    </script>
+
+</body>
+</html>

