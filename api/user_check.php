@@ -1,0 +1,1 @@
+<?php echo 'El usuario del servidor web es: ' . shell_exec('whoami'); ?>

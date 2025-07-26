@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Publicidad</title>
+    <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <!-- Admin Panel (Initially Hidden) -->
+    <div id="adminPanel" class="admin-panel">
+        <div class="admin-content">
+            <h2><i class="fas fa-cog"></i> Panel de Administración</h2>
+            <div class="admin-form">
+                <div class="admin-section">
+                    <h3>Logo</h3>
+                    <input type="url" id="logoUrl" placeholder="URL de la imagen del logo">
+                </div>
+                
+                <div class="admin-section">
+                    <h3>Publicidad</h3>
+                    <input type="url" id="publicidadUrl" placeholder="URL de la imagen publicitaria">
+                </div>
+                
+                <div class="admin-section">
+                    <h3>Video Publicitario</h3>
+                    <input type="url" id="videoUrl" placeholder="URL del video (MP4, YouTube, etc.)">
+                </div>
+                
+                <div class="admin-section">
+                    <h3>Logo Animado</h3>
+                    <input type="url" id="logoAnimadoUrl" placeholder="URL del logo animado (GIF o video)">
+                </div>
+                
+                <div class="admin-section">
+                    <h3>Mockup Camiseta</h3>
+                    <input type="url" id="mockupUrl" placeholder="URL del mockup de camiseta">
+                </div>
+                
+                <div class="admin-section">
+                    <h3>Tarjetas y Volantes</h3>
+                    <input type="url" id="tarjetasUrl" placeholder="URL de diseño de tarjetas">
+                </div>
+                
+                <div class="admin-section">
+                    <h3>Página Web</h3>
+                    <input type="url" id="paginaWebUrl" placeholder="URL de screenshot de página web">
+                </div>
+            </div>
+            
+            <!-- Botón único de actualización -->
+            <div class="admin-update-section">
+                <button onclick="updateAllMedia()" class="btn-update-all">
+                    <i class="fas fa-sync-alt"></i>
+                    Actualizar Todo
+                </button>
+                <p class="update-help">Solo se actualizarán los campos que tengan URLs válidas</p>
+            </div>
+            
+            <div class="admin-actions">
+                <button onclick="closeAdminPanel()" class="btn-close">Cerrar Panel</button>
+                <button onclick="resetAllMedia()" class="btn-reset">Resetear Todo</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Access Button -->
+    <div class="admin-access">
+        <button onclick="openAdminPanel()" title="Panel de Administración">
+            <i class="fas fa-cog"></i>
+        </button>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo-container">
+                <img src="assets/images/logo.jpg" alt="Publicidad" class="logo-image">
+                <h1 class="logo-text">Publicidad</h1>
+            </div>
+            <nav class="nav">
+                <a href="#inicio">Inicio</a>
+                <a href="#servicios">¿Qué Incluye?</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="inicio" class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Combo Publicidad Completo</h1>
+                <p class="hero-subtitle">Todo lo que necesitas para promocionar tu negocio</p>
+                <div class="price-box">
+                    <div class="price">$100,000</div>
+                    <div class="price-text">Pesos Colombianos</div>
+                </div>
+                <a href="#servicios" class="btn-main">Ver Qué Incluye</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- What's Included Section -->
+    <section id="servicios" class="services">
+        <div class="container">
+            <h2>¿Qué Incluye Tu Combo?</h2>
+            <p class="services-intro">Con este combo obtienes todo lo necesario para promocionar tu negocio de manera profesional:</p>
+            
+            <div class="services-list">
+                <div class="service-item">
+                    <div class="service-number">1</div>
+                    <div class="service-icon"><i class="fas fa-paint-brush"></i></div>
+                    <div class="service-info">
+                        <h3>Creación de Logo</h3>
+                        <p>Un logo único y profesional que represente tu marca. Te entregaremos el archivo en diferentes formatos para usar donde necesites.</p>
+                    </div>
+                    <div class="service-media" id="logoMedia">
+                        <div class="placeholder-media">
+                            <i class="fas fa-image"></i>
+                            <span>Logo aquí</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="service-item">
+                    <div class="service-number">2</div>
+                    <div class="service-icon"><i class="fas fa-image"></i></div>
+                    <div class="service-info">
+                        <h3>Creación de Publicidad</h3>
+                        <p>Diseños atractivos para promocionar tu negocio en redes sociales y otros medios. Listos para publicar.</p>
+                    </div>
+                    <div class="service-media" id="publicidadMedia">
+                        <div class="placeholder-media">
+                            <i class="fas fa-bullhorn"></i>
+                            <span>Publicidad aquí</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="service-item">
+                    <div class="service-number">3</div>
+                    <div class="service-icon"><i class="fas fa-video"></i></div>
+                    <div class="service-info">
+                        <h3>Video Publicitario</h3>
+                        <p>Un video corto y llamativo para promocionar tu negocio. Perfecto para redes sociales y WhatsApp.</p>
+                    </div>
+                    <div class="service-media" id="videoMedia">
+                        <div class="placeholder-media">
+                            <i class="fas fa-play"></i>
+                            <span>Video aquí</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="service-item">
+                    <div class="service-number">4</div>
+                    <div class="service-icon"><i class="fas fa-play-circle"></i></div>
+                    <div class="service-info">
+                        <h3>Logo Animado (Intro)</h3>
+                        <p>Tu logo con movimiento para usar al inicio de videos. Hace que tu marca se vea más profesional.</p>
+                    </div>
+                    <div class="service-media" id="logoAnimadoMedia">
+                        <div class="placeholder-media">
+                            <i class="fas fa-magic"></i>
+                            <span>Logo animado aquí</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="service-item">
+                    <div class="service-number">5</div>
+                    <div class="service-icon"><i class="fas fa-tshirt"></i></div>
+                    <div class="service-info">
+                        <h3>Mockup de Camiseta + Formato para Estampar</h3>
+                        <p>Te mostramos cómo se vería tu logo en una camiseta Y te damos el archivo listo para llevarlo a estampar.</p>
+                    </div>
+                    <div class="service-media" id="mockupMedia">
+                        <div class="placeholder-media">
+                            <i class="fas fa-tshirt"></i>
+                            <span>Mockup aquí</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="service-item">
+                    <div class="service-number">6</div>
+                    <div class="service-icon"><i class="fas fa-id-card"></i></div>
+                    <div class="service-info">
+                        <h3>Tarjetas de Presentación + Volantes</h3>
+                        <p>Diseños listos para imprimir. Te damos los archivos en alta calidad para que los lleves a cualquier imprenta.</p>
+                    </div>
+                    <div class="service-media" id="tarjetasMedia">
+                        <div class="placeholder-media">
+                            <i class="fas fa-id-card"></i>
+                            <span>Tarjetas aquí</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="service-item">
+                    <div class="service-number">7</div>
+                    <div class="service-icon"><i class="fas fa-globe"></i></div>
+                    <div class="service-info">
+                        <h3>Página de Instagram y Facebook</h3>
+                        <p>Te ayudamos a crear y configurar tu página de Instagram, Facebook y WhatsApp Business con diseño profesional.</p>
+                    </div>
+                    <div class="service-media">
+                        <div class="social-icons">
+                            <i class="fab fa-instagram"></i>
+                            <i class="fab fa-facebook"></i>
+                            <i class="fab fa-whatsapp"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="service-item">
+                    <div class="service-number">8</div>
+                    <div class="service-icon"><i class="fas fa-laptop"></i></div>
+                    <div class="service-info">
+                        <h3>Creación de Página Web</h3>
+                        <p>Una página web básica y profesional para tu negocio. Responsive y optimizada para aparecer en Google.</p>
+                    </div>
+                    <div class="service-media" id="paginaWebMedia">
+                        <div class="placeholder-media">
+                            <i class="fas fa-laptop"></i>
+                            <span>Página web aquí</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="service-item bonus">
+                    <div class="service-number">+</div>
+                    <div class="service-icon"><i class="fas fa-graduation-cap"></i></div>
+                    <div class="service-info">
+                        <h3>BONUS: Te Enseñamos Cómo Vender</h3>
+                        <p>Te explicamos paso a paso cómo usar todo lo que te entregamos para generar ventas en Facebook, Instagram, WhatsApp y marketplaces como Mercado Libre.</p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="how-it-works">
+        <div class="container">
+            <h2>¿Cómo Funciona?</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Nos Contactas</h3>
+                    <p>Envíanos un mensaje por WhatsApp con la información de tu negocio</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Creamos Todo</h3>
+                    <p>Nuestro equipo diseña todo lo que necesitas en 3-5 días hábiles</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Te Entregamos</h3>
+                    <p>Recibes todos los archivos + la capacitación para usar todo</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="cta">
+        <div class="container">
+            <h2>¿Listo para hacer crecer tu negocio?</h2>
+            <p>Por solo $100,000 pesos obtienes todo lo que necesitas para promocionar tu negocio como un profesional</p>
+            <div class="cta-buttons">
+                <a href="#" class="btn-whatsapp" onclick="contactWhatsApp()">
+                    <i class="fab fa-whatsapp"></i>
+                    Pedir Mi Combo por WhatsApp
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; Pixel Script Studio - Hacemos que tu negocio destaque</p>
+        </div>
+    </footer>
+
+    <script src="assets/js/script.js"></script>
+</body>
+</html> 
