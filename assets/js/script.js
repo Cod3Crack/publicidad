@@ -387,7 +387,7 @@ function displayMedia(mediaType, url) {
     // Detectar videos por extensión
     else if (videoExtensions.includes(fileExtension)) {
         mediaElement = `
-            <video controls style="width: 100%; height: 100%; object-fit: cover;">
+            <video controls style="width: 100%; height: 100%; object-fit: contain;">
                 <source src="${url}" type="video/mp4">
                 Tu navegador no soporta el elemento video.
             </video>
