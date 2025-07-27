@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Publicidad</title>
+    <title>Combo Publicidad</title>
     <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
     <link rel="stylesheet" href="assets/css/styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -74,12 +74,26 @@
         </button>
     </div>
 
+    <!-- Modal para imágenes y videos en grande -->
+    <div id="imageModal" class="image-modal">
+        <div class="image-modal-content">
+            <button class="image-modal-close" onclick="closeImageModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            <img id="modalImage" src="" alt="Imagen ampliada">
+            <video id="modalVideo" controls style="display: none;">
+                <source src="" type="video/mp4">
+                Tu navegador no soporta el elemento video.
+            </video>
+        </div>
+    </div>
+
     <!-- Header -->
     <header class="header">
         <div class="container">
             <div class="logo-container">
                 <img src="assets/images/logo.jpg" alt="Publicidad" class="logo-image">
-                <h1 class="logo-text">Publicidad</h1>
+                <h1 class="logo-text">Combo Publicidad</h1>
             </div>
             <nav class="nav">
                 <a href="#inicio">Inicio</a>
@@ -92,7 +106,7 @@
     <section id="inicio" class="hero">
         <div class="container">
             <div class="hero-content">
-                <h1>Combo Publicidad Completo</h1>
+                <h1>Combo Publicidad</h1>
                 <p class="hero-subtitle">Todo lo que necesitas para promocionar tu negocio</p>
                 <div class="price-box">
                     <div class="price">$100,000</div>

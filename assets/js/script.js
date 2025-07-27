@@ -387,10 +387,15 @@ function displayMedia(mediaType, url) {
     // Detectar videos por extensión
     else if (videoExtensions.includes(fileExtension)) {
         mediaElement = `
-            <video controls style="width: 100%; height: 100%; object-fit: contain;">
-                <source src="${url}" type="video/mp4">
-                Tu navegador no soporta el elemento video.
-            </video>
+            <div class="video-container" onclick="openVideoModal('${url}', '${mediaType}')">
+                <video style="width: 100%; height: 100%; object-fit: contain;">
+                    <source src="${url}" type="video/mp4">
+                    Tu navegador no soporta el elemento video.
+                </video>
+                <div class="video-play-overlay">
+                    <i class="fas fa-play"></i>
+                </div>
+            </div>
         `;
     }
     // Detectar imágenes por extensión
@@ -399,6 +404,7 @@ function displayMedia(mediaType, url) {
             <img src="${url}" 
                  alt="${mediaType}" 
                  style="max-width: 100%; max-height: 100%; object-fit: contain;"
+                 onclick="openImageModal('${url}', '${mediaType}')"
                  onerror="this.parentElement.innerHTML='<div class=&quot;placeholder-media&quot;><i class=&quot;fas fa-exclamation-triangle&quot;></i><span>Error cargando imagen</span></div>'">
         `;
     }
@@ -440,6 +446,7 @@ function displayMedia(mediaType, url) {
             <img src="${url}" 
                  alt="${mediaType}" 
                  style="max-width: 100%; max-height: 100%; object-fit: contain;"
+                 onclick="openImageModal('${url}', '${mediaType}')"
                  onerror="this.parentElement.innerHTML='<div class=&quot;placeholder-media&quot;><i class=&quot;fas fa-exclamation-triangle&quot;></i><span>Error cargando imagen</span></div>'">
         `;
     }
@@ -908,6 +915,177 @@ console.log(`
 🔧 Panel de Administración disponible - Haz clic en el icono de configuración
 `);
 
+// Funciones para el modal de imágenes y videos
+function openImageModal(imageUrl, imageAlt) {
+    const modal = document.getElementById('imageModal');
+    const modalImage = document.getElementById('modalImage');
+    const modalVideo = document.getElementById('modalVideo');
+    
+    // Ocultar video y mostrar imagen
+    modalVideo.style.display = 'none';
+    modalImage.style.display = 'block';
+    
+    modalImage.src = imageUrl;
+    modalImage.alt = imageAlt;
+    
+    modal.classList.add('active');
+    
+    // Prevenir scroll del body
+    document.body.style.overflow = 'hidden';
+    
+    // Ajustar tamaño del modal dinámicamente
+    adjustModalSize();
+    
+    // Ajustar específicamente el tamaño de la imagen
+    setTimeout(() => {
+        const windowWidth = window.innerWidth;
+        const windowHeight = window.innerHeight;
+        
+        let imageMaxWidth, imageMaxHeight;
+        
+        if (windowWidth >= 1200) {
+            imageMaxWidth = Math.min(windowWidth * 0.95, 1400);
+            imageMaxHeight = Math.min(windowHeight * 0.95, 900);
+        } else if (windowWidth >= 768) {
+            imageMaxWidth = Math.min(windowWidth * 0.95, 1000);
+            imageMaxHeight = Math.min(windowHeight * 0.95, 800);
+        } else {
+            imageMaxWidth = Math.min(windowWidth * 0.95, windowWidth - 10);
+            imageMaxHeight = Math.min(windowHeight * 0.95, windowHeight - 50);
+        }
+        
+        modalImage.style.maxWidth = imageMaxWidth + 'px';
+        modalImage.style.maxHeight = imageMaxHeight + 'px';
+    }, 100);
+}
+
+function openVideoModal(videoUrl, videoAlt) {
+    const modal = document.getElementById('imageModal');
+    const modalImage = document.getElementById('modalImage');
+    const modalVideo = document.getElementById('modalVideo');
+    
+    // Ocultar imagen y mostrar video
+    modalImage.style.display = 'none';
+    modalVideo.style.display = 'block';
+    
+    modalVideo.src = videoUrl;
+    modalVideo.alt = videoAlt;
+    
+    modal.classList.add('active');
+    
+    // Prevenir scroll del body
+    document.body.style.overflow = 'hidden';
+    
+    // Ajustar tamaño del modal dinámicamente
+    adjustModalSize();
+    
+    // Ajustar específicamente el tamaño del video
+    setTimeout(() => {
+        const windowWidth = window.innerWidth;
+        const windowHeight = window.innerHeight;
+        
+        // Calcular tamaño máximo para el video
+        let videoMaxWidth, videoMaxHeight;
+        
+        if (windowWidth >= 1200) {
+            videoMaxWidth = Math.min(windowWidth * 0.95, 1400);
+            videoMaxHeight = Math.min(windowHeight * 0.95, 900);
+        } else if (windowWidth >= 768) {
+            videoMaxWidth = Math.min(windowWidth * 0.95, 1000);
+            videoMaxHeight = Math.min(windowHeight * 0.95, 800);
+        } else {
+            videoMaxWidth = Math.min(windowWidth * 0.95, windowWidth - 10);
+            videoMaxHeight = Math.min(windowHeight * 0.95, windowHeight - 50);
+        }
+        
+        modalVideo.style.maxWidth = videoMaxWidth + 'px';
+        modalVideo.style.maxHeight = videoMaxHeight + 'px';
+    }, 100);
+    
+    // Intentar reproducir el video automáticamente
+    modalVideo.play().catch(function(error) {
+        console.log('No se pudo reproducir automáticamente:', error);
+    });
+}
+
+function closeImageModal() {
+    const modal = document.getElementById('imageModal');
+    const modalImage = document.getElementById('modalImage');
+    const modalVideo = document.getElementById('modalVideo');
+    
+    modal.classList.remove('active');
+    
+    // Pausar video si está reproduciéndose
+    if (modalVideo.src) {
+        modalVideo.pause();
+    }
+    
+    // Restaurar scroll del body
+    document.body.style.overflow = '';
+}
+
+// Función para ajustar el tamaño del modal dinámicamente
+function adjustModalSize() {
+    const modalContent = document.querySelector('.image-modal-content');
+    if (!modalContent) return;
+    
+    // Calcular el tamaño máximo considerando el padding y el botón de cerrar
+    const padding = window.innerWidth >= 1200 ? 40 : window.innerWidth >= 768 ? 40 : 10;
+    const buttonHeight = window.innerWidth >= 768 ? 50 : 40; // Altura del botón de cerrar
+    
+    const maxWidth = window.innerWidth - padding;
+    const maxHeight = window.innerHeight - padding - buttonHeight;
+    
+    modalContent.style.maxWidth = maxWidth + 'px';
+    modalContent.style.maxHeight = maxHeight + 'px';
+    
+    // Ajustar específicamente el video si está visible
+    const modalVideo = document.getElementById('modalVideo');
+    if (modalVideo && modalVideo.style.display !== 'none') {
+        let videoMaxWidth, videoMaxHeight;
+        
+        if (window.innerWidth >= 1200) {
+            videoMaxWidth = Math.min(maxWidth * 0.95, 1200);
+            videoMaxHeight = Math.min(maxHeight * 0.95, 800);
+        } else if (window.innerWidth >= 768) {
+            videoMaxWidth = Math.min(maxWidth * 0.95, 900);
+            videoMaxHeight = Math.min(maxHeight * 0.95, 700);
+        } else {
+            videoMaxWidth = Math.min(maxWidth * 0.95, maxWidth - 5);
+            videoMaxHeight = Math.min(maxHeight * 0.95, maxHeight - 10);
+        }
+        
+        modalVideo.style.maxWidth = videoMaxWidth + 'px';
+        modalVideo.style.maxHeight = videoMaxHeight + 'px';
+    }
+}
+
+// Cerrar modal al hacer clic fuera de la imagen
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('imageModal');
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeImageModal();
+            }
+        });
+    }
+    
+    // Cerrar modal con tecla Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeImageModal();
+        }
+    });
+    
+    // Ajustar tamaño del modal cuando cambie el tamaño de la ventana
+    window.addEventListener('resize', function() {
+        if (modal && modal.classList.contains('active')) {
+            adjustModalSize();
+        }
+    });
+});
+
 // Funciones globales para fácil acceso (actualizado)
 window.contactWhatsApp = contactWhatsApp;
 window.openAdminPanel = openAdminPanel;
@@ -916,7 +1094,10 @@ window.updateMedia = updateMedia;
 window.updateAllMedia = updateAllMedia;
 window.resetAllMedia = resetAllMedia;
 window.copyInfo = copyInfo;
-window.previewMedia = previewMedia; 
+window.previewMedia = previewMedia;
+window.openImageModal = openImageModal;
+window.openVideoModal = openVideoModal;
+window.closeImageModal = closeImageModal; 
 
 // Inicializar cuando la página carga
 document.addEventListener('DOMContentLoaded', function() {
